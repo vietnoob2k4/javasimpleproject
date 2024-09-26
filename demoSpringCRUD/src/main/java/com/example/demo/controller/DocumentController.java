@@ -51,16 +51,13 @@ public class DocumentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Document> updateDocument(@PathVariable Long id, @RequestBody JsonNode documentNode) {
+        Document existingDocument = documentService.getDocumentById(id)
+                .orElseThrow(() -> new RuntimeException("Document not found with id: " + id));
 
-        if (!documentService.getDocumentById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
+        existingDocument = documentService.saveDocument(documentNode);
+        existingDocument.setId(id);
 
-
-        Document updatedDocument = documentService.saveDocument(documentNode);
-        updatedDocument.setId(id);
-
-        return ResponseEntity.ok(updatedDocument);
+        return ResponseEntity.ok(existingDocument);
     }
 
 

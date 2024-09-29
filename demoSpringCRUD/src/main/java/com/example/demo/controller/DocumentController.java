@@ -36,9 +36,9 @@ public class DocumentController {
         if (document.isPresent()) {
             return ResponseEntity.ok(document.get());
         } else {
-            // Trả về thông báo "document not found"
+
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new DocumentNotFoundResponse("Document not found with ID: " + id));
+                    .body("Document not found with ID: " + id);
         }
     }
 

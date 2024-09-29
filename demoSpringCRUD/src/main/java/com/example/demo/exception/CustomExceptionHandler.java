@@ -23,10 +23,9 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("message", ex.getReason());
-        return ResponseEntity.status(ex.getStatusCode()).body(error);
+    public ResponseEntity<String> handleResponseStatusException(ResponseStatusException ex) {
+
+        return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
     }
 
     @ExceptionHandler(RuntimeException.class)

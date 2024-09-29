@@ -129,7 +129,7 @@ public class DocumentService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             try {
-                // Phân tích chuỗi thành LocalDate
+
                 LocalDate date = LocalDate.parse(dateString, formatter);
                 report.setNgayPhatHanh(date.toString());
             } catch (DateTimeParseException e) {

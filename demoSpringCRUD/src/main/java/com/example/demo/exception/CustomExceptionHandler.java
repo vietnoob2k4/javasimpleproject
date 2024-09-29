@@ -32,6 +32,25 @@ public class CustomExceptionHandler {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException ex) {
+//        ApiResponse apiResponse = new ApiResponse();
+//        apiResponse.setCode(1001);
+//        apiResponse.setMessage(ex.getMessage());
+//        return ResponseEntity.badRequest().body(apiResponse);
+//
+//    }
+
+
+    //    @ExceptionHandler(AppException.class)
+//    public ResponseEntity<ApiResponse> handleAppException(AppException ex) {
+    //    ErrorCode errorCode = ex.getErrorCode
+//        ApiResponse apiResponse = new ApiResponse();
+//        apiResponse.setCode(1001);
+//        apiResponse.setMessage(ex.getMessage());
+//        return ResponseEntity.badRequest().body(apiResponse);
+//
+//    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {

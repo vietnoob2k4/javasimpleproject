@@ -41,6 +41,7 @@ public class DocumentService {
         String type = documentNode.get("type").asText();
         if (type == null || type.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trường type không được để trống");
+            ///////throw new AppException(ErrorCode.ERROR101)
         }
 
         Document document;

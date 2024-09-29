@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -27,8 +28,8 @@ public abstract class Document {
     @NotBlank(message = "Nhà xuất bản không được bỏ trống")
     private String nhaXuatBan;
 
-    @NotNull(message = "Số bản xuất không được bỏ trống")
-    private Integer soBanXuat; // Chuyển sang Integer để có thể kiểm tra NotNull
+    @Positive(message = "so ban xuat phai la so duong")
+    private Integer soBanXuat;
 
 
 

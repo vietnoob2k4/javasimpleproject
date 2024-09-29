@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Document;
+import com.example.demo.exception.ApiResponse;
 import com.example.demo.exception.DocumentNotFoundResponse;
 import com.example.demo.service.DocumentService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.print.Doc;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +50,16 @@ public class DocumentController {
         Document savedDocument = documentService.saveDocument(documentNode);
         return ResponseEntity.ok(savedDocument);
     }
+
+//    @PostMapping
+//    public ApiResponse<Document> createDocument(@RequestBody @Valid JsonNode documentNode) {
+//        ApiResponse<Document> apiResponse = new ApiResponse<>();
+//        // Lưu tài liệu và gán kết quả vào apiResponse
+//        Document savedDocument = documentService.saveDocument(documentNode);
+//        apiResponse.setResult(savedDocument);
+//        return apiResponse;
+//    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Document> updateDocument(@PathVariable Long id, @RequestBody JsonNode documentNode) {

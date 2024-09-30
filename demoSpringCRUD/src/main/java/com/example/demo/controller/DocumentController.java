@@ -23,8 +23,12 @@ import java.util.Optional;
 @RequestMapping("/api/documents")
 public class DocumentController {
 
-    @Autowired
-    private DocumentService documentService;
+
+    private final DocumentService documentService;
+
+    public DocumentController(DocumentService documentService) {
+        this.documentService = documentService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Document>> getAllDocuments() {
@@ -34,14 +38,10 @@ public class DocumentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getDocumentById(@PathVariable Long id) {
-        Optional<Document> document = documentService.getDocumentById(id);
-        if (document.isPresent()) {
-            return ResponseEntity.ok(document.get());
-        } else {
+        Document document = documentService.getDocumentById(id);
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Document not found with ID: " + id);
-        }
+            return ResponseEntity.ok(document);
+
     }
 
 
@@ -63,8 +63,8 @@ public class DocumentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Document> updateDocument(@PathVariable Long id, @RequestBody JsonNode documentNode) {
-        Document existingDocument = documentService.getDocumentById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found with id: " + id));
+        Document existingDocument = documentService.getDocumentById(id);
+
 
         existingDocument = documentService.saveDocument(documentNode);
         existingDocument.setId(id);
@@ -75,47 +75,23 @@ public class DocumentController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDocument(@PathVariable Long id) {
-        try {
+
             documentService.deleteDocument(id);
-            return ResponseEntity.ok("Xóa thành công tài liệu");
-        } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found, delete failed");
-        }
+            return ResponseEntity.ok("Xóa thành công tài liệu có id:" + id);
+
     }
 
 
     @GetMapping("/type/{type}")
     public ResponseEntity<?> getDocumentsByType(@PathVariable String type) {
-        List<Document> documents;
-        try {
-            switch (type.toLowerCase()){
-                case "book":
-                    documents = documentService.findDocumentsByTypeBook(type);
-                    break;
-                case "magazine":
-                    documents = documentService.findDocumentsByTypeMagazine(type);
-                    break;
-                case "report":
-                    documents = documentService.findDocumentsByTypeReport(type);
-                    break;
-                default:
-                    return ResponseEntity.badRequest().body("Invalid document type");
-            }
 
-            // Check if the document list is empty
-            if (documents.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new DocumentNotFoundResponse("document not found"));
-            }
+            List<Document> documents = documentService.findDocumentsByType(type);
+
 
             return ResponseEntity.ok(documents);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(new DocumentNotFoundResponse(e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new DocumentNotFoundResponse("An unexpected error occurred: " + e.getMessage()));
-        }
+
     }
+
 
 }
 

@@ -7,8 +7,16 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -33,36 +41,8 @@ public abstract class Document {
 
 
 
-    public Document() {}
 
-    public Document(String nhaXuatBan, int soBanXuat,String type) {
-        this.nhaXuatBan = nhaXuatBan;
-        this.soBanXuat = soBanXuat;
-    }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNhaXuatBan() {
-        return nhaXuatBan;
-    }
-
-    public void setNhaXuatBan(String nhaXuatBan) {
-        this.nhaXuatBan = nhaXuatBan;
-    }
-
-    public Integer getSoBanXuat() {
-        return soBanXuat;
-    }
-
-    public void setSoBanXuat(Integer soBanXuat) {
-        this.soBanXuat = soBanXuat;
-    }
 
 
 }

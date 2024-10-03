@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.print.Doc;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -91,7 +93,18 @@ public class DocumentController {
             return ResponseEntity.ok(documents);
 
     }
-
+    @GetMapping("/export")
+    public ResponseEntity<String> exportDocument() throws IOException {
+        List<Document> documents = documentService.getAllDocuments();
+        String filePath = "C:/Users/vietn/Downloads/documents.xlsx";
+        documentService.exportExcel(documents, filePath);
+        return new ResponseEntity<>("File saved to " + filePath, HttpStatus.OK);
+    }
+    @PostMapping("/import")
+    public ResponseEntity<String> importDocument(@RequestParam("file") MultipartFile file) {
+        documentService.ImportExcel(file);
+        return new ResponseEntity<>("File uploaded and processed successfully.", HttpStatus.OK);
+    }
 
 }
 

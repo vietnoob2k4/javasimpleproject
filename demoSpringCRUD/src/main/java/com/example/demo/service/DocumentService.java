@@ -8,15 +8,29 @@ import com.example.demo.repository.DocumentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,6 +115,94 @@ public class DocumentService {
 
         return documents;
     }
+    public void exportExcel(List<Document> documents, String filePath) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Documents");
+
+            Row headerRow = sheet.createRow(0);
+            String[] columnsHeaders = {"ID", "Type", "NXB", "SBX", "SO TRANG", "TACGIA", "SO BAN PHAT HANH", "THANG PHAT HANH", "NGAY PHAT HANH"};
+            for (int i = 0; i < columnsHeaders.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columnsHeaders[i]);
+            }
+
+            int rowIndex = 1;
+            for (Document document : documents) {
+                Row row = sheet.createRow(rowIndex++);
+                row.createCell(0).setCellValue(document.getId());
+                row.createCell(1).setCellValue(document.getClass().getSimpleName());
+                row.createCell(2).setCellValue(document.getNhaXuatBan());
+                row.createCell(3).setCellValue(document.getSoBanXuat());
+
+                if (document instanceof Book) {
+                    Book book = (Book) document;
+                    row.createCell(4).setCellValue(book.getSoTrang());
+                    row.createCell(5).setCellValue(book.getTacGia());
+                } else if (document instanceof Magazine) {
+                    Magazine magazine = (Magazine) document;
+                    row.createCell(6).setCellValue(magazine.getBanPhatHanh());
+                    row.createCell(7).setCellValue(magazine.getThangPhatHanh());
+                } else if (document instanceof Report) {
+                    Report report = (Report) document;
+                    row.createCell(8).setCellValue(report.getNgayPhatHanh());
+                }
+            }
+
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi khi xuất file Excel ");
+        }
+    }
+
+
+    public void ImportExcel(MultipartFile file){
+        List<Document> documents = new ArrayList<>();
+        try (InputStream inputStream = file.getInputStream(); Workbook workbook = new XSSFWorkbook(inputStream)){
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 1; i<= sheet.getLastRowNum(); i++){
+                Row row = sheet.getRow(i);
+                String type = row.getCell(1).getStringCellValue();
+                String nhaXuatBan = row.getCell(2).getStringCellValue();
+                int soBanXuat = (int) row.getCell(3).getNumericCellValue();
+                if("Book".equalsIgnoreCase(type)){
+                    int soTrang = (int) row.getCell(4).getNumericCellValue();
+                    String tacGia = row.getCell(5).getStringCellValue();
+                    Book book = new Book();
+                    book.setNhaXuatBan(nhaXuatBan);
+                    book.setSoBanXuat(soBanXuat);
+                    book.setSoTrang(soTrang);
+                    book.setTacGia(tacGia);
+                    documents.add(book);
+
+                } else if ("Magazine".equalsIgnoreCase(type)){
+                    String banPhatHanh = row.getCell(6).getStringCellValue();
+                    String thangPhatHanh = row.getCell(7).getStringCellValue();
+                    Magazine magazine = new Magazine();
+                    magazine.setNhaXuatBan(nhaXuatBan);
+                    magazine.setSoBanXuat(soBanXuat);
+                    magazine.setBanPhatHanh(banPhatHanh);
+                    magazine.setThangPhatHanh(thangPhatHanh);
+                    documents.add(magazine);
+
+                }else if ("Report".equalsIgnoreCase(type)) {
+                    String ngayPhatHanh = row.getCell(8).getStringCellValue();
+                    Report report = new Report();
+                    report.setNhaXuatBan(nhaXuatBan);
+                    report.setSoBanXuat(soBanXuat);
+                    report.setNgayPhatHanh(ngayPhatHanh);
+                    documents.add(report);
+                }
+
+            }
+            documentRepository.saveAll(documents);
+
+        }catch (IOException e){
+            throw new RuntimeException("error import");
+        }
+    }
+
 
     private void validateDocument(Document document, JsonNode documentNode) {
         if (!StringUtils.hasText(document.getNhaXuatBan())) {

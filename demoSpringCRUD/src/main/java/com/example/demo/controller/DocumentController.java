@@ -7,12 +7,14 @@ import com.example.demo.service.DocumentService;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.print.Doc;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -91,7 +93,14 @@ public class DocumentController {
             return ResponseEntity.ok(documents);
 
     }
-
+    @GetMapping("/export")
+    public ResponseEntity<String> exportDocument() throws IOException {
+        List<Document> documents = documentService.getAllDocuments();
+        String filePath = "C:/Users/ndviet3/Downloads/documents.xlsx";
+        documentService.exportExcel(documents, filePath);
+        return new ResponseEntity<>("File saved to " + filePath, HttpStatus.OK);
+    }
 
 }
+
 
